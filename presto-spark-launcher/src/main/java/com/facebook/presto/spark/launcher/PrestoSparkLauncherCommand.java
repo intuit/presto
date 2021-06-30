@@ -13,12 +13,11 @@
  */
 package com.facebook.presto.spark.launcher;
 
-import com.facebook.presto.spark.classloader_interface.PrestoSparkConfInitializer;
+//import com.facebook.presto.spark.classloader_interface.PrestoSparkConfInitializer;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import io.airlift.airline.Command;
 import io.airlift.airline.HelpOption;
-import org.apache.spark.SparkConf;
 import org.apache.spark.SparkContext;
 
 import javax.inject.Inject;
@@ -44,10 +43,12 @@ public class PrestoSparkLauncherCommand
 
     public void run()
     {
-        SparkConf sparkConfiguration = new SparkConf()
-                .setAppName("Presto");
-        PrestoSparkConfInitializer.initialize(sparkConfiguration);
-        SparkContext sparkContext = new SparkContext(sparkConfiguration);
+       // SparkConf sparkConfiguration = new SparkConf()
+       //         .setAppName("Presto");
+        //PrestoSparkConfInitializer.initialize(sparkConfiguration);
+        //SparkContext sparkContext = new SparkContext(sparkConfiguration);
+
+        SparkContext sparkContext = SparkContext.getOrCreate();
 
         TargzBasedPackageSupplier packageSupplier = new TargzBasedPackageSupplier(new File(clientOptions.packagePath));
         packageSupplier.deploy(sparkContext);

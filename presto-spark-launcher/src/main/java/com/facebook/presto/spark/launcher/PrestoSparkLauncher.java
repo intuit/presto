@@ -18,7 +18,7 @@ import io.airlift.airline.SingleCommand;
 
 import static com.facebook.presto.spark.launcher.Commands.parseCommandNoValidate;
 import static io.airlift.airline.SingleCommand.singleCommand;
-import static java.lang.System.exit;
+//import static java.lang.System.exit;
 
 public class PrestoSparkLauncher
 {
@@ -31,7 +31,7 @@ public class PrestoSparkLauncher
         PrestoSparkLauncherCommand console = parseCommandNoValidate(command, args);
         if (console.helpOption.showHelpIfRequested() ||
                 console.versionOption.showVersionIfRequested()) {
-            exit(0);
+            //exit(0);
             return;
         }
 
@@ -41,17 +41,19 @@ public class PrestoSparkLauncher
         }
         catch (ParseException e) {
             System.err.println(e.getMessage());
-            exit(1);
-            return;
+            throw e;
+            //exit(1);
+            //return;
         }
 
         try {
             console.run();
-            exit(0);
+            //exit(0);
         }
         catch (RuntimeException e) {
             e.printStackTrace();
-            exit(1);
+            throw e;
+            //exit(1);
         }
     }
 }
