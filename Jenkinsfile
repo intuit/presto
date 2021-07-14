@@ -33,20 +33,20 @@ pipeline {
     stage('init') {
       steps {
         echo 'Installing Dependencies'
-        sh "
+        sh '''
 	java -version
 	mvn -v
-	"
+	'''
       }
     }
 
     stage('Build') {
       steps {
         echo 'building Maven Package'
-	sh "
+	sh '''
 	cd presto-spark-launcher
 	ls -lstr
-	"
+	'''
       }
     }
 
