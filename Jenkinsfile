@@ -41,6 +41,8 @@ pipeline {
     stage('Build') {
       steps {
         echo 'building Maven Package'
+	cd presto-spark-launcher
+	ls -lstr
       }
     }
 
