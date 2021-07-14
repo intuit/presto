@@ -33,6 +33,8 @@ pipeline {
     stage('init') {
       steps {
         echo 'Installing Dependencies'
+        java -version
+	mvn -v
       }
     }
 
