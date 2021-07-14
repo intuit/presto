@@ -1574,7 +1574,7 @@ public class OrcTester
                     Optional.empty(),
                     new TestingHiveOrcAggregatedMemoryContext(),
                     tailBuffer.length)) {
-                StripeFooter stripeFooter = encoding.createMetadataReader().readStripeFooter(footer.getTypes(), inputStream);
+                StripeFooter stripeFooter = encoding.createMetadataReader().readStripeFooter(orcDataSource.getId(), footer.getTypes(), inputStream);
                 stripes.add(stripeFooter);
             }
         }
@@ -1599,6 +1599,7 @@ public class OrcTester
                 dwrfWriterEncryption,
                 new DwrfEncryptionProvider(new UnsupportedEncryptionLibrary(), new TestingEncryptionLibrary()),
                 writerOptions,
+                Optional.empty(),
                 ImmutableMap.of(),
                 HIVE_STORAGE_TIME_ZONE,
                 true,

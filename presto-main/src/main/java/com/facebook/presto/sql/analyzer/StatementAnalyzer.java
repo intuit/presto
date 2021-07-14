@@ -111,6 +111,7 @@ import com.facebook.presto.sql.tree.NaturalJoin;
 import com.facebook.presto.sql.tree.Node;
 import com.facebook.presto.sql.tree.NodeLocation;
 import com.facebook.presto.sql.tree.NodeRef;
+import com.facebook.presto.sql.tree.Offset;
 import com.facebook.presto.sql.tree.OrderBy;
 import com.facebook.presto.sql.tree.Prepare;
 import com.facebook.presto.sql.tree.Property;
@@ -216,6 +217,7 @@ import static com.facebook.presto.sql.analyzer.SemanticErrorCode.DUPLICATE_PARAM
 import static com.facebook.presto.sql.analyzer.SemanticErrorCode.DUPLICATE_PROPERTY;
 import static com.facebook.presto.sql.analyzer.SemanticErrorCode.DUPLICATE_RELATION;
 import static com.facebook.presto.sql.analyzer.SemanticErrorCode.INVALID_FUNCTION_NAME;
+import static com.facebook.presto.sql.analyzer.SemanticErrorCode.INVALID_OFFSET_ROW_COUNT;
 import static com.facebook.presto.sql.analyzer.SemanticErrorCode.INVALID_ORDINAL;
 import static com.facebook.presto.sql.analyzer.SemanticErrorCode.INVALID_PROCEDURE_ARGUMENTS;
 import static com.facebook.presto.sql.analyzer.SemanticErrorCode.INVALID_WINDOW_FRAME;
@@ -1081,6 +1083,9 @@ class StatementAnalyzer
             }
             analysis.setOrderByExpressions(node, orderByExpressions);
 
+            if (node.getOffset().isPresent()) {
+                analyzeOffset(node.getOffset().get());
+            }
             // Input fields == Output fields
             analysis.setOutputExpressions(node, descriptorToFields(queryBodyScope));
 
@@ -1364,10 +1369,11 @@ class StatementAnalyzer
                     Optional.empty(),
                     Optional.empty(),
                     Optional.empty(),
+                    Optional.empty(),
                     Optional.empty());
 
             Union union = new Union(ImmutableList.of(predicateStitchedQuery.getQueryBody(), materializedViewQuerySpecification), Optional.of(Boolean.FALSE));
-            Query unionQuery = new Query(predicateStitchedQuery.getWith(), union, predicateStitchedQuery.getOrderBy(), predicateStitchedQuery.getLimit());
+            Query unionQuery = new Query(predicateStitchedQuery.getWith(), union, predicateStitchedQuery.getOrderBy(), predicateStitchedQuery.getOffset(), predicateStitchedQuery.getLimit());
             // can we return the above query object, instead of building a query string?
             // in case of returning the query object, make sure to clone the original query object.
             return SqlFormatterUtil.getFormattedSql(unionQuery, sqlParser, Optional.empty());
@@ -1523,6 +1529,9 @@ class StatementAnalyzer
                     analysis.markRedundantOrderBy(orderBy);
                     warningCollector.add(new PrestoWarning(REDUNDANT_ORDER_BY, "ORDER BY in subquery may have no effect"));
                 }
+            }
+            if (node.getOffset().isPresent()) {
+                analyzeOffset(node.getOffset().get());
             }
             analysis.setOrderByExpressions(node, orderByExpressions);
 
@@ -2623,6 +2632,21 @@ class StatementAnalyzer
             Scope withScope = withScopeBuilder.build();
             analysis.setScope(with, withScope);
             return withScope;
+        }
+
+        private void analyzeOffset(Offset node)
+        {
+            long rowCount;
+            try {
+                rowCount = Long.parseLong(node.getRowCount());
+            }
+            catch (NumberFormatException e) {
+                throw new SemanticException(INVALID_OFFSET_ROW_COUNT, node, "Invalid OFFSET row count: %s", node.getRowCount());
+            }
+            if (rowCount < 0) {
+                throw new SemanticException(INVALID_OFFSET_ROW_COUNT, node, "OFFSET row count must be greater or equal to 0 (actual value: %s)", rowCount);
+            }
+            analysis.setOffset(node, rowCount);
         }
 
         private void verifySelectDistinct(QuerySpecification node, List<Expression> outputExpressions)

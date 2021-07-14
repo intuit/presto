@@ -11,19 +11,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.facebook.presto.spark;
+package com.facebook.presto.tests;
 
 import com.facebook.presto.testing.QueryRunner;
-import com.facebook.presto.tests.AbstractTestWindowQueries;
 
-import static com.facebook.presto.spark.PrestoSparkQueryRunner.createHivePrestoSparkQueryRunner;
-
-public class TestPrestoSparkAbstractTestWindowQueries
-        extends AbstractTestWindowQueries
+public class TestSpilledJoinQueries
+        extends AbstractTestJoinQueries
 {
     @Override
     protected QueryRunner createQueryRunner()
+            throws Exception
     {
-        return createHivePrestoSparkQueryRunner();
+        return TestDistributedSpilledQueries.localCreateQueryRunner();
     }
 }

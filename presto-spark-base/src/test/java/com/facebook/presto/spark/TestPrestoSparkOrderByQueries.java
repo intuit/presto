@@ -18,7 +18,7 @@ import com.facebook.presto.tests.AbstractTestOrderByQueries;
 
 import static com.facebook.presto.spark.PrestoSparkQueryRunner.createHivePrestoSparkQueryRunner;
 
-public class TestPrestoSparkAbstractTestOrderByQueries
+public class TestPrestoSparkOrderByQueries
         extends AbstractTestOrderByQueries
 {
     @Override
