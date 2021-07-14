@@ -35,6 +35,8 @@ pipeline {
         echo 'Installing Dependencies'
         sh '''
 	java -version
+	'''
+	sh '''
 	mvn -v
 	'''
       }
@@ -45,6 +47,8 @@ pipeline {
         echo 'building Maven Package'
 	sh '''
 	cd presto-spark-launcher
+	'''
+	sh '''
 	ls -lstr
 	'''
       }
