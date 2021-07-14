@@ -4,8 +4,8 @@ def jenkinsRole = 'arn:aws:iam::000000000000:role/tmp-presto-jenkins'
 pipeline {
   agent {
     kubernetes {
-            label "superglue-${UUID.randomUUID().toString()}"
-            defaultContainer "sbt"
+            label "presto-${UUID.randomUUID().toString()}"
+            defaultContainer "presto-oss"
             yaml """
             apiVersion: v1
             kind: Pod
@@ -15,7 +15,7 @@ pipeline {
             spec:
                 containers:
                 - name: sbt
-                  image: 'docker.intuit.com/oicp/standard/java/amzn-corretto-jdk11'
+                  image: 'docker.intuit.com/data/kgpt/curation/service/jenkins-toolbox:ce3b7d6e928bc8f9224b3d14f8f43c380aa55027'
                   command:
                   - cat
                   tty: true
