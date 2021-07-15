@@ -48,7 +48,7 @@ pipeline {
           container('presto-oss') {
 	    sh '''
             ls -lstr
-            mvn package -Dmaven.test.skip=true -DskipTests
+            mvn package -Dmaven.test.skip=true -DignoreNonCompile dependency:analyze -DskipTests
 	    '''
           }
       }
