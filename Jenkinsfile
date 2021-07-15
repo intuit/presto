@@ -47,11 +47,8 @@ pipeline {
         echo 'building Maven Package'
           container('presto-oss') {
 	    sh '''
- 	    cd presto-spark-launcher
-            mvn package
-	    ls -lstr
-	    cd target
             ls -lstr
+            mvn package -Dmaven.test.skip=true -DskipTests
 	    '''
           }
       }
