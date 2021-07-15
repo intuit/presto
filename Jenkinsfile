@@ -50,6 +50,8 @@ pipeline {
  	    cd presto-spark-launcher
             mvn package
 	    ls -lstr
+	    cd target
+            ls -lstr
 	    '''
           }
       }
