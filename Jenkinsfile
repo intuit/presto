@@ -14,7 +14,7 @@ pipeline {
                     iam.amazonaws.com/role: ${jenkinsRole}
             spec:
                 containers:
-                - name: sbt
+                - name: presto-oss
                   image: 'docker.intuit.com/data/kgpt/curation/service/jenkins-toolbox:ce3b7d6e928bc8f9224b3d14f8f43c380aa55027'
                   command:
                   - cat
@@ -33,24 +33,24 @@ pipeline {
     stage('init') {
       steps {
         echo 'Installing Dependencies'
-        sh '''
-	java -version
-	'''
-	sh '''
-	mvn -v
-	'''
+	  container('presto-oss') {
+            sh '''
+	    java -version
+	    mvn -v
+	    '''
+          }
       }
     }
 
     stage('Build') {
       steps {
         echo 'building Maven Package'
-	sh '''
-	cd presto-spark-launcher
-	'''
-	sh '''
-	ls -lstr
-	'''
+          container('presto-oss') {
+	    sh '''
+ 	    cd presto-spark-launcher
+	    ls -lstr
+	    '''
+          }
       }
     }
 
