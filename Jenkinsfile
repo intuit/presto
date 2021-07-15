@@ -15,7 +15,7 @@ pipeline {
             spec:
                 containers:
                 - name: presto-oss
-                  image: 'docker.intuit.com/data/kgpt/curation/service/jenkins-toolbox:ce3b7d6e928bc8f9224b3d14f8f43c380aa55027'
+                  image: 'docker.intuit.com/data/kgpt/curation/service/jenkins-toolbox:latest'
                   command:
                   - cat
                   tty: true
