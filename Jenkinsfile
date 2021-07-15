@@ -48,6 +48,7 @@ pipeline {
           container('presto-oss') {
 	    sh '''
  	    cd presto-spark-launcher
+            mvn package
 	    ls -lstr
 	    '''
           }
