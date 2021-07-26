@@ -37,6 +37,7 @@ pipeline {
             sh '''
 	    java -version
 	    mvn -v
+	    dos2unix -V
 	    '''
           }
       }
