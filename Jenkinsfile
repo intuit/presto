@@ -46,9 +46,13 @@ pipeline {
       steps {
         echo 'building Maven Package'
           container('presto-oss') {
-	    sh '''
-            ls -lstr
-            mvn package -Dmaven.test.skip=true -DignoreNonCompile dependency:analyze -DskipTests -Dcheckstyle.skip
+	    echo 'convert files to unix format to avoid style errors'
+            sh '''
+            find . -type f -print0 | xargs -0 -n 1 -P 4 dos2unix
+	    '''
+            echo 'compile the entire project with root pom.xml maven file'
+            sh '''
+	    mvn clean install -DskipTests
 	    '''
           }
       }
@@ -57,6 +61,10 @@ pipeline {
     stage('Unit Test') {
       steps {
         echo 'Unit Testing'
+	sh '''
+	ls -lstr
+	ls -lstr target/
+	'''
         echo 'Integration Test'
       }
     }
