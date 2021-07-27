@@ -49,6 +49,10 @@ pipeline {
       steps {
         echo 'building Maven Package'
           container('presto-oss') {
+            echo 'purge m2 local dependencies'
+            sh '''
+	    rm -rf $HOME/.m2/*
+	    '''
 	    echo 'convert files to unix format to avoid style errors'
             sh '''
             find . -type f -print0 | xargs -0 -n 1 -P 4 dos2unix
@@ -68,7 +72,8 @@ pipeline {
 	ls -lstr
 	ls -lstr target/
 	'''
-        echo 'Integration Test'
+        echo 'mvn test'
+	echo 'Integration Test'
       }
     }
 
