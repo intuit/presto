@@ -17,7 +17,6 @@ import com.facebook.presto.execution.resourceGroups.ResourceGroupRuntimeInfo;
 import com.facebook.presto.memory.ClusterMemoryPool;
 import com.facebook.presto.memory.MemoryInfo;
 import com.facebook.presto.memory.NodeMemoryConfig;
-import com.facebook.presto.metadata.InternalNode;
 import com.facebook.presto.metadata.InternalNodeManager;
 import com.facebook.presto.metadata.SessionPropertyManager;
 import com.facebook.presto.server.BasicQueryInfo;
@@ -29,7 +28,6 @@ import com.facebook.presto.spi.resourceGroups.ResourceGroupId;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Sets;
 import io.airlift.units.Duration;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -43,7 +41,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicLong;
@@ -56,8 +53,6 @@ import static com.facebook.presto.memory.LocalMemoryManager.RESERVED_POOL;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
-import static com.google.common.collect.ImmutableSet.toImmutableSet;
-import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
@@ -143,9 +138,8 @@ public class ResourceManagerClusterStateProvider
         requireNonNull(basicQueryInfo, "basicQueryInfo is null");
         checkArgument(
                 internalNodeManager.getCoordinators().stream().anyMatch(i -> nodeId.equals(i.getNodeIdentifier())),
-                "%s is not a coordinator (coordinators: %s)",
-                nodeId,
-                internalNodeManager.getCoordinators().stream().collect(toImmutableSet()));
+                "%s is not a coordinator",
+                nodeId);
         CoordinatorQueriesState state = nodeQueryStates.computeIfAbsent(nodeId, identifier -> new CoordinatorQueriesState(
                 nodeId,
                 maxCompletedQueries,
@@ -167,11 +161,8 @@ public class ResourceManagerClusterStateProvider
     }
 
     public List<ResourceGroupRuntimeInfo> getClusterResourceGroups(String excludingNode)
-            throws ResourceManagerInconsistentException
     {
         requireNonNull(excludingNode, "excludingNode is null");
-        validateCoordinatorConsistency();
-
         Map<ResourceGroupId, ResourceGroupRuntimeInfo.Builder> resourceGroupBuilders = new HashMap<>();
         nodeQueryStates.values().stream()
                 .filter(state -> !state.getNodeId().equals(excludingNode))
@@ -189,16 +180,6 @@ public class ResourceManagerClusterStateProvider
                         builder.addRunningQueries(1);
                     }
                     builder.addUserMemoryReservationBytes(info.getQueryStats().getUserMemoryReservation().toBytes());
-                    while (resourceGroupId.getParent().isPresent()) {
-                        resourceGroupId = resourceGroupId.getParent().get();
-                        ResourceGroupRuntimeInfo.Builder parentBuilder = resourceGroupBuilders.computeIfAbsent(resourceGroupId, ResourceGroupRuntimeInfo::builder);
-                        if (info.getState() == QUEUED) {
-                            parentBuilder.addDescendantQueuedQueries(1);
-                        }
-                        else if (!info.getState().isDone()) {
-                            parentBuilder.addDescendantRunningQueries(1);
-                        }
-                    }
                 });
         return resourceGroupBuilders.values().stream().map(ResourceGroupRuntimeInfo.Builder::build).collect(toImmutableList());
     }
@@ -279,19 +260,6 @@ public class ResourceManagerClusterStateProvider
             String nodeHost = URI.create(e.getValue().getNodeStatus().getExternalAddress()).getHost();
             return nodeIdentifier + " [" + nodeHost + "]";
         }, e -> e.getValue().getNodeStatus().getMemoryInfo()));
-    }
-
-    private void validateCoordinatorConsistency()
-    {
-        Set<String> coordinators = internalNodeManager.getCoordinators().stream().map(InternalNode::getNodeIdentifier).collect(toImmutableSet());
-        Set<String> heartbeatedCoordinatorNodes = nodeStatuses.values().stream()
-                .map(InternalNodeState::getNodeStatus)
-                .filter(NodeStatus::isCoordinator)
-                .map(NodeStatus::getNodeId)
-                .collect(toImmutableSet());
-        if (!(Sets.difference(coordinators, heartbeatedCoordinatorNodes).isEmpty() && !coordinators.isEmpty())) {
-            throw new ResourceManagerInconsistentException(format("%s nodes found in discovery vs. %s nodes found in heartbeats", coordinators.size(), heartbeatedCoordinatorNodes.size()));
-        }
     }
 
     private static class CoordinatorQueriesState

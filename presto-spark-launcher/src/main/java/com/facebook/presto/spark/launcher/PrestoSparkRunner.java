@@ -48,7 +48,7 @@ public class PrestoSparkRunner
         implements AutoCloseable
 {
     private final PrestoSparkDistribution distribution;
-    private final IPrestoSparkService driverPrestoSparkService;
+    protected final IPrestoSparkService driverPrestoSparkService;
 
     public PrestoSparkRunner(PrestoSparkDistribution distribution)
     {
@@ -186,7 +186,7 @@ public class PrestoSparkRunner
         return checkDirectory(packageSupplier.getPrestoSparkPackageDirectory()).getAbsolutePath();
     }
 
-    private static class DistributionBasedPrestoSparkTaskExecutorFactoryProvider
+    public static class DistributionBasedPrestoSparkTaskExecutorFactoryProvider
             implements PrestoSparkTaskExecutorFactoryProvider
     {
         private final PackageSupplier packageSupplier;

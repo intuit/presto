@@ -55,7 +55,6 @@ import com.facebook.presto.spark.classloader_interface.IPrestoSparkQueryExecutio
 import com.facebook.presto.spark.classloader_interface.IPrestoSparkQueryExecutionFactory;
 import com.facebook.presto.spark.classloader_interface.IPrestoSparkTaskExecutor;
 import com.facebook.presto.spark.classloader_interface.MutablePartitionId;
-import com.facebook.presto.spark.classloader_interface.PrestoSparkConfInitializer;
 import com.facebook.presto.spark.classloader_interface.PrestoSparkExecutionException;
 import com.facebook.presto.spark.classloader_interface.PrestoSparkMutableRow;
 import com.facebook.presto.spark.classloader_interface.PrestoSparkPartitioner;
@@ -312,8 +311,6 @@ public class PrestoSparkQueryExecutionFactory
             Optional<String> queryStatusInfoOutputLocation,
             Optional<String> queryDataOutputLocation)
     {
-        PrestoSparkConfInitializer.checkInitialized(sparkContext);
-
         String sql;
         if (sqlText.isPresent()) {
             checkArgument(!sqlLocation.isPresent(), "sqlText and sqlLocation should not be set at the same time");
