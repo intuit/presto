@@ -59,7 +59,7 @@ pipeline {
 	    '''
             echo 'compile the entire project with root pom.xml maven file'
             sh '''
-	    mvn clean install -DskipTests
+	    mvn -pl -presto-docs clean install -DskipTests
 	    '''
           }
       }
