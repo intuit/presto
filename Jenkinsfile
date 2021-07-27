@@ -38,6 +38,7 @@ pipeline {
 	    java -version
 	    mvn -v
 	    dos2unix -V
+	    python3 -m venv
 	    '''
         echo 'Dependencies Already Installed'
 	  }
