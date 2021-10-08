@@ -80,6 +80,7 @@ pipeline {
     stage('Deploy Artifact') {
       steps {
         echo 'Deploy Artifact'
+	  mavenBuildRelease(config,"-U -B -s settings.xml")
       }
     }
 
