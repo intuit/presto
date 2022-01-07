@@ -88,9 +88,9 @@ public class DetermineJoinDistributionType
         addJoinsWithDifferentDistributions(joinNode, possibleJoinNodes, context);
         addJoinsWithDifferentDistributions(joinNode.flipChildren(), possibleJoinNodes, context);
 
-        if (possibleJoinNodes.stream().anyMatch(result -> result.getCost().hasUnknownComponents()) || possibleJoinNodes.isEmpty()) {
+        /*if (possibleJoinNodes.stream().anyMatch(result -> result.getCost().hasUnknownComponents()) || possibleJoinNodes.isEmpty()) {
             return getSyntacticOrderJoin(joinNode, context, AUTOMATIC);
-        }
+        }*/
 
         // Using Ordering to facilitate rule determinism
         Ordering<PlanNodeWithCost> planNodeOrderings = costComparator.forSession(context.getSession()).onResultOf(PlanNodeWithCost::getCost);
@@ -99,13 +99,16 @@ public class DetermineJoinDistributionType
 
     private void addJoinsWithDifferentDistributions(JoinNode joinNode, List<PlanNodeWithCost> possibleJoinNodes, Context context)
     {
-        if (!mustPartition(joinNode) && isBelowMaxBroadcastSize(joinNode, context)) {
+        if (/*!mustPartition(joinNode) && */isBelowMaxBroadcastSize(joinNode, context)) {
             possibleJoinNodes.add(getJoinNodeWithCost(context, joinNode.withDistributionType(REPLICATED)));
         }
-        // don't consider partitioned inequality joins because they execute on a single node.
-        if (!mustReplicate(joinNode, context) && !joinNode.getCriteria().isEmpty()) {
+        else {
             possibleJoinNodes.add(getJoinNodeWithCost(context, joinNode.withDistributionType(PARTITIONED)));
         }
+        // don't consider partitioned inequality joins because they execute on a single node.
+        //if (!mustReplicate(joinNode, context) && !joinNode.getCriteria().isEmpty()) {
+        //    possibleJoinNodes.add(getJoinNodeWithCost(context, joinNode.withDistributionType(PARTITIONED)));
+       // }
     }
 
     private PlanNode getSyntacticOrderJoin(JoinNode joinNode, Context context, JoinDistributionType joinDistributionType)

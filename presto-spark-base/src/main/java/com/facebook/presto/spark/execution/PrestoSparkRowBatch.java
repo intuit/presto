@@ -347,8 +347,10 @@ public class PrestoSparkRowBatch
             int nextRow = currentRow + 1;
             int nextRowOffset = nextRow < rowCount ? rowOffsets[nextRow] : totalSizeInBytes;
             int rowSize = nextRowOffset - currentRowOffset;
-            rowData.limit(currentRowOffset + rowSize);
-            rowData.position(currentRowOffset);
+            ((Buffer) rowData).limit(currentRowOffset + rowSize);
+            ((Buffer) rowData).position(currentRowOffset); 
+            //rowData.limit(currentRowOffset + rowSize);
+            //rowData.position(currentRowOffset);
 
             short rowsCount = rowData.getShort(currentRowOffset);
             row.setPositionCount(rowsCount);
