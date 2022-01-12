@@ -38,6 +38,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.util.Iterator;
 import java.util.List;
@@ -200,8 +201,12 @@ public class PrestoSparkUtils
                 int inputOffset = input.arrayOffset() + input.position();
                 int outputOffset = output.arrayOffset() + output.position();
 
-                int written = decompress(input.array(), inputOffset, input.remaining(), output.array(), outputOffset, output.remaining());
-                output.position(output.position() + written);
+                Buffer input1 = (Buffer) input;
+                Buffer output1 = (Buffer) output;
+                int written = decompress(input.array(), inputOffset, input1.remaining(), output.array(), outputOffset, output1.remaining());
+                ((Buffer) output).position(output.position() + written);  
+                //int written = decompress(input.array(), inputOffset, input.remaining(), output.array(), outputOffset, output.remaining());
+                //output.position(output.position() + written);
             }
         };
     }
