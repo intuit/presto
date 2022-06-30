@@ -27,6 +27,7 @@ import com.facebook.presto.common.type.Type;
 import com.facebook.presto.common.type.TypeManager;
 import com.facebook.presto.hive.LocationService.WriteInfo;
 import com.facebook.presto.hive.PartitionUpdate.FileWriteInfo;
+import com.facebook.presto.hive.ViewReaderUtil.ViewReader;
 import com.facebook.presto.hive.metastore.Column;
 import com.facebook.presto.hive.metastore.Database;
 import com.facebook.presto.hive.metastore.HiveColumnStatistics;
@@ -264,7 +265,6 @@ import static com.facebook.presto.hive.HiveType.HIVE_STRING;
 import static com.facebook.presto.hive.HiveType.toHiveType;
 import static com.facebook.presto.hive.HiveUtil.columnExtraInfo;
 import static com.facebook.presto.hive.HiveUtil.decodeMaterializedViewData;
-import static com.facebook.presto.hive.HiveUtil.decodeViewData;
 import static com.facebook.presto.hive.HiveUtil.deserializeZstdCompressed;
 import static com.facebook.presto.hive.HiveUtil.encodeMaterializedViewData;
 import static com.facebook.presto.hive.HiveUtil.encodeViewData;
@@ -2274,11 +2274,18 @@ public class HiveMetadata
         MetastoreContext metastoreContext = new MetastoreContext(session.getIdentity(), session.getQueryId(), session.getClientInfo(), session.getSource(), getMetastoreHeaders(session), isUserDefinedTypeEncodingEnabled(session), columnConverterProvider);
         for (SchemaTableName schemaTableName : tableNames) {
             Optional<Table> table = metastore.getTable(metastoreContext, schemaTableName.getSchemaName(), schemaTableName.getTableName());
-            if (table.isPresent() && MetastoreUtil.isPrestoView(table.get())) {
+           // System.out.println("table.get().getTableType() = " + table.get().getTableType());
+          //  System.out.println("table.get().getTableName() = " + table.get().getTableName());
+            if (table.isPresent() && table.get().getTableType().equals(VIRTUAL_VIEW) && ViewReaderUtil.canDecodeView(table.get())) {
+                ViewReader viewReader = ViewReaderUtil.createViewReader(metastore, metastoreContext, table.get(), typeManager);
+                ConnectorViewDefinition viewDefinition = viewReader.decodeViewData(table.get().getViewOriginalText().get(), table.get());
+                views.put(schemaTableName, viewDefinition);
+                 /*if (table.isPresent() && MetastoreUtil.isPrestoView(table.get())) {
                 views.put(schemaTableName, new ConnectorViewDefinition(
                         schemaTableName,
                         Optional.ofNullable(table.get().getOwner()),
                         decodeViewData(table.get().getViewOriginalText().get())));
+                 }*/
             }
         }
 

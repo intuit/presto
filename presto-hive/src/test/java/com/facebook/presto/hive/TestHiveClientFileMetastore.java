@@ -79,26 +79,26 @@ public class TestHiveClientFileMetastore
         return new FileHiveMetastore(hdfsEnvironment, baseDir.toURI().toString(), "test");
     }
 
-    @Override
+    //@Override
     public void testMismatchSchemaTable()
     {
         // FileHiveMetastore only supports replaceTable() for views
     }
 
-    @Override
+   // @Override
     public void testPartitionSchemaMismatch()
     {
         // test expects an exception to be thrown
         throw new SkipException("FileHiveMetastore only supports replaceTable() for views");
     }
 
-    @Override
+   // @Override
     public void testBucketedTableEvolution()
     {
         // FileHiveMetastore only supports replaceTable() for views
     }
 
-    @Override
+   // @Override
     public void testBucketedTableEvolutionWithDifferentReadBucketCount()
     {
         // FileHiveMetastore only supports replaceTable() for views

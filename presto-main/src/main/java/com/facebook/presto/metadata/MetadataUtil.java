@@ -42,7 +42,6 @@ import static com.facebook.presto.sql.analyzer.SemanticErrorCode.INVALID_SCHEMA_
 import static com.facebook.presto.sql.analyzer.SemanticErrorCode.SCHEMA_NOT_SPECIFIED;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
-import static java.util.Locale.ENGLISH;
 import static java.util.Objects.requireNonNull;
 
 public final class MetadataUtil
@@ -60,6 +59,7 @@ public final class MetadataUtil
 
     public static String checkCatalogName(String catalogName)
     {
+        System.out.println("catalogName=" + catalogName);
         return checkLowerCase(catalogName, "catalogName");
     }
 
@@ -83,7 +83,8 @@ public final class MetadataUtil
         if (value == null) {
             throw new NullPointerException(format("%s is null", name));
         }
-        checkArgument(value.equals(value.toLowerCase(ENGLISH)), "%s is not lowercase: %s", name, value);
+
+        //checkArgument(value.equals(value.toLowerCase(ENGLISH)), "%s is not lowercase: %s", name, value);
         return value;
     }
 
@@ -148,6 +149,10 @@ public final class MetadataUtil
                 new SemanticException(SCHEMA_NOT_SPECIFIED, node, "Schema must be specified when session schema is not set"));
         String catalogName = (parts.size() > 2) ? parts.get(2) : session.getCatalog().orElseThrow(() ->
                 new SemanticException(CATALOG_NOT_SPECIFIED, node, "Catalog must be specified when session catalog is not set"));
+
+        System.out.println("MetadataUtil catalogName " + catalogName);
+        System.out.println("MetadataUtil schemaName " + schemaName);
+        System.out.println("MetadataUtil objectName " + objectName);
 
         return new QualifiedObjectName(catalogName, schemaName, objectName);
     }

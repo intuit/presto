@@ -2029,6 +2029,7 @@ public class LocalExecutionPlanner
                     buildContext.getDriverInstanceCount(),
                     buildSource.getPipelineExecutionStrategy(),
                     Optional.empty());
+            System.out.println("add Driver Context");
 
             ImmutableMap.Builder<VariableReferenceExpression, Integer> outputMappings = ImmutableMap.builder();
             outputMappings.putAll(probeSource.getLayout());
@@ -2302,6 +2303,7 @@ public class LocalExecutionPlanner
 
             factoriesBuilder.add(hashBuilderOperatorFactory);
 
+            System.out.println("Hash build Operator");
             context.addDriverFactory(
                     buildContext.isInputDriver(),
                     false,

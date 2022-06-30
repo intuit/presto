@@ -242,7 +242,6 @@ import static com.facebook.presto.sql.analyzer.SemanticErrorCode.TOO_MANY_GROUPI
 import static com.facebook.presto.sql.analyzer.SemanticErrorCode.TYPE_MISMATCH;
 import static com.facebook.presto.sql.analyzer.SemanticErrorCode.VIEW_ANALYSIS_ERROR;
 import static com.facebook.presto.sql.analyzer.SemanticErrorCode.VIEW_IS_RECURSIVE;
-import static com.facebook.presto.sql.analyzer.SemanticErrorCode.VIEW_IS_STALE;
 import static com.facebook.presto.sql.analyzer.SemanticErrorCode.VIEW_PARSE_ERROR;
 import static com.facebook.presto.sql.analyzer.SemanticErrorCode.WILDCARD_WITHOUT_FROM;
 import static com.facebook.presto.sql.analyzer.SemanticErrorCode.WINDOW_FUNCTION_ORDERBY_LITERAL;
@@ -328,6 +327,7 @@ class StatementAnalyzer
         public Scope process(Node node, Optional<Scope> scope)
         {
             Scope returnScope = super.process(node, scope);
+            System.out.println("processed process node");
             checkState(returnScope.getOuterQueryParent().equals(outerQueryScope), "result scope should have outer query scope equal with parameter outer query scope");
             if (scope.isPresent()) {
                 checkState(hasScopeAsLocalParent(returnScope, scope.get()), "return scope should have context scope as one of ancestors");
@@ -1212,6 +1212,7 @@ class StatementAnalyzer
                     GET_VIEW_TIME_NANOS,
                     () -> metadata.getView(session, name));
             if (optionalView.isPresent()) {
+                System.out.println(optionalView.get().toString());
                 return processView(table, scope, name, optionalView);
             }
 
@@ -1297,6 +1298,7 @@ class StatementAnalyzer
         private Scope processView(Table table, Optional<Scope> scope, QualifiedObjectName name, Optional<ViewDefinition> optionalView)
         {
             Statement statement = analysis.getStatement();
+            System.out.println(statement.toString());
             if (statement instanceof CreateView) {
                 CreateView viewStatement = (CreateView) statement;
                 QualifiedObjectName viewNameFromStatement = createQualifiedObjectName(session, viewStatement, viewStatement.getName());
@@ -1310,15 +1312,19 @@ class StatementAnalyzer
             ViewDefinition view = optionalView.get();
 
             Query query = parseView(view.getOriginalSql(), name, table);
+            System.out.println("view.getOriginalSql() = " + view.getOriginalSql());
+            System.out.println("query = " + query.toString());
+            System.out.println("query = view.getCatalog() " + view.getCatalog());
+            System.out.println("table= " + table);
 
             analysis.registerNamedQuery(table, query);
             analysis.registerTableForView(table);
             RelationType descriptor = analyzeView(query, name, view.getCatalog(), view.getSchema(), view.getOwner(), table);
             analysis.unregisterTableForView();
 
-            if (isViewStale(view.getColumns(), descriptor.getVisibleFields())) {
+           /* if (isViewStale(view.getColumns(), descriptor.getVisibleFields())) {
                 throw new SemanticException(VIEW_IS_STALE, table, "View '%s' is stale; it must be re-created", name);
-            }
+            }*/
 
             // Derive the type of the view from the stored definition, not from the analysis of the underlying query.
             // This is needed in case the underlying table(s) changed and the query in the view now produces types that
@@ -2521,10 +2527,13 @@ class StatementAnalyzer
                         .build();
 
                 StatementAnalyzer analyzer = new StatementAnalyzer(analysis, metadata, sqlParser, viewAccessControl, viewSession, warningCollector);
+                System.out.println("Start Analysing " + query);
                 Scope queryScope = analyzer.analyze(query, Scope.create());
+                System.out.println("Complete Analysing " + query);
                 return queryScope.getRelationType().withAlias(name.getObjectName(), null);
             }
             catch (RuntimeException e) {
+                e.printStackTrace();
                 throwIfInstanceOf(e, PrestoException.class);
                 throw new SemanticException(VIEW_ANALYSIS_ERROR, node, "Failed analyzing stored view '%s': %s", name, e.getMessage());
             }

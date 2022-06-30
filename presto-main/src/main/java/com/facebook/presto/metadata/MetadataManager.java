@@ -1010,10 +1010,20 @@ public class MetadataManager
                     toSchemaTableName(viewName).toSchemaTablePrefix());
             ConnectorViewDefinition view = views.get(toSchemaTableName(viewName));
             if (view != null) {
-                ViewDefinition definition = deserializeView(view.getViewData());
+                List<ViewDefinition.ViewColumn> viewColumns = view.getViewColumn().stream()
+                         .map(column -> new ViewDefinition.ViewColumn(column.getName(), column.getType()))
+                         .collect(toImmutableList());
+                log.info("view sql" + view.getViewData());
+                ViewDefinition definition = new ViewDefinition(view.getViewData(),
+                        Optional.of("hive"),
+                        Optional.of(toSchemaTableName(viewName).getSchemaName()),
+                        viewColumns,
+                        Optional.empty(),
+                        true);
+                /*ViewDefinition definition = deserializeView(view.getViewData());
                 if (view.getOwner().isPresent() && !definition.isRunAsInvoker()) {
                     definition = definition.withOwner(view.getOwner().get());
-                }
+                }*/
                 return Optional.of(definition);
             }
         }

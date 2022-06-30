@@ -57,7 +57,6 @@ import com.facebook.presto.spark.classloader_interface.IPrestoSparkQueryExecutio
 import com.facebook.presto.spark.classloader_interface.IPrestoSparkQueryExecutionFactory;
 import com.facebook.presto.spark.classloader_interface.IPrestoSparkTaskExecutor;
 import com.facebook.presto.spark.classloader_interface.MutablePartitionId;
-import com.facebook.presto.spark.classloader_interface.PrestoSparkConfInitializer;
 import com.facebook.presto.spark.classloader_interface.PrestoSparkExecutionException;
 import com.facebook.presto.spark.classloader_interface.PrestoSparkMutableRow;
 import com.facebook.presto.spark.classloader_interface.PrestoSparkPartitioner;
@@ -321,7 +320,7 @@ public class PrestoSparkQueryExecutionFactory
             Optional<String> queryStatusInfoOutputLocation,
             Optional<String> queryDataOutputLocation)
     {
-        PrestoSparkConfInitializer.checkInitialized(sparkContext);
+       // PrestoSparkConfInitializer.checkInitialized(sparkContext);
 
         String sql;
         if (sqlText.isPresent()) {
@@ -1196,6 +1195,13 @@ public class PrestoSparkQueryExecutionFactory
                     shuffleStatsCollector,
                     tableWriteInfo,
                     outputType);
+            log.info("T output type" + outputType.getName() + " " + outputType.toString());
+            log.info("subPlan.getFragment()" + subPlan.getFragment().getJsonRepresentation());
+            if (subPlan.getFragment().getJsonRepresentation().isPresent()) {
+                log.info("subPlan.getFragment()" + subPlan.getFragment().getJsonRepresentation().get());
+            }
+            log.info("rddString()" + rdd.toDebugString());
+            log.info("toDebugString()" + rdd.toDebugString());
             return new RddAndMore<>(rdd, broadcastDependencies.build());
         }
 

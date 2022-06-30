@@ -31,13 +31,13 @@ public class TestHiveClientInMemoryMetastore
         return new BridgingHiveMetastore(hiveMetastore, new HivePartitionMutator());
     }
 
-    @Override
+    //@Override
     public void testMetadataDelete()
     {
         // InMemoryHiveMetastore ignores "removeData" flag in dropPartition
     }
 
-    @Override
+   // @Override
     public void testTransactionDeleteInsert()
     {
         // InMemoryHiveMetastore does not check whether partition exist in createPartition and dropPartition

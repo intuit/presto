@@ -439,7 +439,6 @@ public class PrestoSparkTaskExecutorFactory
                 if (totalMemoryReservationBytes > queryContext.getPeakNodeTotalMemory()) {
                     queryContext.setPeakNodeTotalMemory(totalMemoryReservationBytes);
                 }
-
                 if (totalMemoryReservationBytes > pool.getMaxBytes() * memoryRevokingThreshold && memoryRevokeRequestInProgress.compareAndSet(false, true)) {
                     memoryRevocationExecutor.execute(() -> {
                         try {
@@ -470,7 +469,6 @@ public class PrestoSparkTaskExecutorFactory
 
                 // Get the latest memory reservation info since it might have changed due to revoke
                 long totalReservedMemory = pool.getQueryMemoryReservation(queryId) + pool.getQueryRevocableMemoryReservation(queryId);
-
                 // If total memory usage is over maxTotalMemory and memory revoke request is not pending, fail the query with EXCEEDED_MEMORY_LIMIT error
                 if (totalReservedMemory > maxTotalMemory.toBytes() && !memoryRevokeRequestInProgress.get() && !isMemoryRevokePending(taskContext)) {
                     throw exceededLocalTotalMemoryLimit(
@@ -498,6 +496,7 @@ public class PrestoSparkTaskExecutorFactory
                 List<PrestoSparkSerializedPage> inMemoryInput = inputs.getInMemoryInputs().get(sourceFragmentId.toString());
 
                 if (shuffleInput != null) {
+                    log.info("add shuffle input");
                     checkArgument(broadcastInput == null, "single remote source is not expected to accept different kind of inputs");
                     checkArgument(inMemoryInput == null, "single remote source is not expected to accept different kind of inputs");
                     remoteSourceRowInputs.add(new PrestoSparkShuffleInput(sourceFragmentId.getId(), shuffleInput));
@@ -526,6 +525,7 @@ public class PrestoSparkTaskExecutorFactory
                 shuffleInputs.put(remoteSource.getId(), remoteSourceRowInputs);
             }
             if (!remoteSourcePageInputs.isEmpty()) {
+                log.info("remoteSourcePageInputs");
                 pageInputs.put(remoteSource.getId(), remoteSourcePageInputs);
             }
             if (!broadcastInputsList.isEmpty()) {
@@ -591,9 +591,19 @@ public class PrestoSparkTaskExecutorFactory
 
         taskStateMachine.addStateChangeListener(state -> {
             if (state.isDone()) {
+                log.info("Calling taskStateMachine isDone listener" + taskId + " partiion " + partitionId + " attempt " + attemptNumber);
                 outputBuffer.setNoMoreRows();
+                memoryManager.close();
             }
         });
+
+        if (org.apache.spark.TaskContext.get() != null) {
+            org.apache.spark.TaskContext.get().addTaskCompletionListener(context -> {
+                log.info("Calling task completion listener" + taskId + " partiion " + partitionId + " attempt " + attemptNumber);
+                outputBuffer.setNoMoreRows();
+                memoryManager.close();
+            });
+        }
 
         PrestoSparkTaskExecution taskExecution = new PrestoSparkTaskExecution(
                 taskStateMachine,
@@ -764,7 +774,6 @@ public class PrestoSparkTaskExecutorFactory
             }
             return next != null;
         }
-
         @Override
         public Tuple2<MutablePartitionId, T> next()
         {
@@ -823,6 +832,7 @@ public class PrestoSparkTaskExecutorFactory
                     processedBytes,
                     end - start - outputSupplier.getTimeSpentWaitingForOutputInMillis());
             shuffleStatsCollector.add(shuffleStats);
+            log.info("shuffleStats.toString() =" + shuffleStats.toString());
 
             TaskInfo taskInfo = createTaskInfo(taskContext, taskStateMachine, taskInstanceId, outputBufferType, outputBuffer);
             SerializedTaskInfo serializedTaskInfo = new SerializedTaskInfo(serializeZstdCompressed(taskInfoCodec, taskInfo));
@@ -998,6 +1008,7 @@ public class PrestoSparkTaskExecutorFactory
                 }
                 next = currentRowTupleSupplier.getNext();
                 if (next == null) {
+                   // currentRowTupleSupplier.reset();
                     currentRowTupleSupplier = null;
                 }
             }

@@ -133,7 +133,11 @@ public class PrestoSparkTaskRdd<T extends PrestoSparkTaskOutput>
             taskSourceIterator = emptyScalaIterator();
         }
 
-        return taskProcessor.process(taskSourceIterator, unmodifiableMap(shuffleInputIterators));
+        Iterator<Tuple2<MutablePartitionId, T>> resultSet = taskProcessor.process(taskSourceIterator, unmodifiableMap(shuffleInputIterators));
+       // resultSet.
+        //return taskProcessor.process(taskSourceIterator, unmodifiableMap(shuffleInputIterators));
+        System.out.println(" task resultSet size " + resultSet.size());
+        return resultSet;
     }
 
     @Override

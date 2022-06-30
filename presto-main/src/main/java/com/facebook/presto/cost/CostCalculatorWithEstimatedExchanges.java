@@ -14,6 +14,7 @@
 
 package com.facebook.presto.cost;
 
+import com.facebook.airlift.log.Logger;
 import com.facebook.presto.Session;
 import com.facebook.presto.spi.plan.AggregationNode;
 import com.facebook.presto.spi.plan.IntersectNode;
@@ -49,6 +50,7 @@ public class CostCalculatorWithEstimatedExchanges
 {
     private final CostCalculator costCalculator;
     private final TaskCountEstimator taskCountEstimator;
+    private static final Logger log = Logger.get(CostCalculatorWithEstimatedExchanges.class);
 
     @Inject
     public CostCalculatorWithEstimatedExchanges(CostCalculator costCalculator, TaskCountEstimator taskCountEstimator)
@@ -259,6 +261,9 @@ public class CostCalculatorWithEstimatedExchanges
 
         double buildSideSize = buildStats.getOutputSizeInBytes(build.getOutputVariables());
         double probeSideSize = probeStats.getOutputSizeInBytes(probe.getOutputVariables());
+
+        log.info("buildSideSize  " + buildSideSize);
+        log.info("probeSideSize  " + probeSideSize);
 
         double cpuCost = probeSideSize + buildSideSize * buildSizeMultiplier;
 

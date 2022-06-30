@@ -13,6 +13,9 @@
  */
 package com.facebook.presto.spi;
 
+import com.facebook.presto.common.type.Type;
+
+import java.util.List;
 import java.util.Optional;
 
 import static java.util.Objects.requireNonNull;
@@ -22,6 +25,15 @@ public class ConnectorViewDefinition
     private final SchemaTableName name;
     private final Optional<String> owner;
     private final String viewData;
+    private List<ViewColumn> columns;
+
+    public ConnectorViewDefinition(SchemaTableName name, Optional<String> owner, String viewData, List<ViewColumn> columns)
+    {
+        this.name = requireNonNull(name, "name is null");
+        this.owner = requireNonNull(owner, "owner is null");
+        this.viewData = requireNonNull(viewData, "viewData is null");
+        this.columns = columns;
+    }
 
     public ConnectorViewDefinition(SchemaTableName name, Optional<String> owner, String viewData)
     {
@@ -45,6 +57,11 @@ public class ConnectorViewDefinition
         return viewData;
     }
 
+    public List<ViewColumn> getViewColumn()
+    {
+        return columns;
+    }
+
     @Override
     public String toString()
     {
@@ -53,5 +70,35 @@ public class ConnectorViewDefinition
         sb.append(", owner=").append(owner);
         sb.append('}');
         return sb.toString();
+    }
+
+    public static final class ViewColumn
+    {
+        private final String name;
+        private final Type type;
+
+        public ViewColumn(
+                String name,
+                Type type)
+        {
+            this.name = requireNonNull(name, "name is null");
+            this.type = requireNonNull(type, "type is null");
+        }
+
+        public String getName()
+        {
+            return name;
+        }
+
+        public Type getType()
+        {
+            return type;
+        }
+
+        @Override
+        public String toString()
+        {
+            return name + ":" + type;
+        }
     }
 }

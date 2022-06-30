@@ -330,6 +330,7 @@ public class HashBuilderOperator
     public void addInput(Page page)
     {
         requireNonNull(page, "page is null");
+        log.info("hash build operator. addInput");
 
         if (lookupSourceFactoryDestroyed.isDone()) {
             close();

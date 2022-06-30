@@ -133,6 +133,7 @@ public class ParquetPageSource
             throw e;
         }
         catch (RuntimeException e) {
+            e.printStackTrace();
             closeWithSuppression(e);
             throw new PrestoException(HIVE_CURSOR_ERROR, e);
         }

@@ -198,6 +198,7 @@ public class HashAggregationOperator
             checkState(!closed, "Factory is already closed");
 
             OperatorContext operatorContext = driverContext.addOperatorContext(operatorId, planNodeId, HashAggregationOperator.class.getSimpleName());
+            System.out.println("Hash Aggregation Factory");
             HashAggregationOperator hashAggregationOperator = new HashAggregationOperator(
                     operatorContext,
                     groupByTypes,

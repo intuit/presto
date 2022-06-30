@@ -64,11 +64,25 @@ public class TestPrestoSparkQueryRunner
     public void testTableWrite()
     {
         // some basic tests
-        assertUpdate(
+      /*  assertUpdate(
                 "CREATE TABLE hive.hive_test.hive_orders AS " +
                         "SELECT orderkey, custkey, orderstatus, totalprice, orderdate, orderpriority, clerk, shippriority, comment " +
                         "FROM orders",
+                15000);*/
+
+       /* assertUpdate(
+                "CREATE TABLE hive.hive_test.hive_orders AS " +
+                        "SELECT * FROM nation first " +
+                        "INNER JOIN nation second " +
+                        "ON first.nationkey = second.nationkey ",
+                15000);*/
+
+        assertUpdate(
+                "CREATE TABLE hive.hive_test.hive_orders AS " +
+                        "SELECT first.orderkey, first.custkey, second.comment,  CAST(ROW(1, 2.0) AS ROW(x BIGINT, y DOUBLE)) as value1 " +
+                        "FROM orders first INNER JOIN orders second on first.orderkey = second.orderkey",
                 15000);
+
 
         assertUpdate(
                 "INSERT INTO hive.hive_test.hive_orders " +
@@ -113,7 +127,7 @@ public class TestPrestoSparkQueryRunner
                 45000);
     }
 
-    @Test
+/*    @Test
     public void testZeroFileCreatorForBucketedTable()
     {
         assertUpdate(
@@ -1168,5 +1182,5 @@ public class TestPrestoSparkQueryRunner
     private void assertBucketedQuery(String sql)
     {
         assertQuery(sql, sql.replaceAll("_bucketed", ""));
-    }
+    }*/
 }

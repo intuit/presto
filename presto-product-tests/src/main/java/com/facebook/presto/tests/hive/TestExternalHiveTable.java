@@ -46,6 +46,19 @@ public class TestExternalHiveTable
     }
 
     @Test
+    public void testHiveView()
+    {
+        onHive().executeQuery("DROP VIEW IF EXISTS hive_zero_index_view");
+        onHive().executeQuery("DROP TABLE IF EXISTS hive_table_dummy");
+
+        onHive().executeQuery("CREATE TABLE hive_table_dummy(a int)");
+        onHive().executeQuery("CREATE VIEW hive_zero_index_view AS SELECT array('presto','hive')[1] AS sql_dialect FROM hive_table_dummy");
+        onHive().executeQuery("INSERT INTO TABLE hive_table_dummy VALUES (1)");
+
+        assertThat(query("SELECT * FROM hive_zero_index_view")).containsOnly(row("hive"));
+    }
+
+    @Test
     public void testShowStatisticsForExternalTable()
     {
         TableInstance nation = mutableTablesState().get(NATION_PARTITIONED_BY_BIGINT_REGIONKEY.getName());

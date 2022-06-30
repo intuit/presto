@@ -71,6 +71,7 @@
         <dep.jaxb.version>2.3.1</dep.jaxb.version>
         <dep.hudi.version>0.9.0</dep.hudi.version>
         <dep.testcontainers.version>1.15.1</dep.testcontainers.version>
+        <dep.coral.version>1.0.121</dep.coral.version>
         <!--
           America/Bahia_Banderas has:
            - offset change since 1970 (offset Jan 1970: -08:00, offset Jan 2018: -06:00)
@@ -140,7 +141,7 @@
         <module>presto-benchmark-driver</module>
         <module>presto-server</module>
         <module>presto-server-rpm</module>
-        <module>presto-docs</module>
+        <!--<module>presto-docs</module>-->
         <module>presto-verifier</module>
         <module>presto-testing-server-launcher</module>
         <module>presto-plugin-toolkit</module>
@@ -634,6 +635,12 @@
                 <artifactId>hive-apache</artifactId>
                 <version>3.0.0-7</version>
             </dependency>
+
+          <!--  <dependency>
+                <groupId>com.facebook.presto.hive</groupId>
+                <artifactId>hive-apache</artifactId>
+                <version>3.0.0-8-SNAPSHOT</version>
+            </dependency>-->
 
             <dependency>
                 <groupId>com.facebook.presto.orc</groupId>
@@ -1985,6 +1992,90 @@
                 <artifactId>stream</artifactId>
                 <version>2.9.5</version>
             </dependency>
+
+            <dependency>
+                <groupId>com.linkedin.calcite</groupId>
+                <artifactId>calcite-core</artifactId>
+                <version>1.21.0.151</version>
+                <classifier>shaded</classifier>
+                <exclusions>
+                    <exclusion>
+                        <groupId>*</groupId>
+                        <artifactId>*</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+           <!-- <dependency>
+                <groupId>com.linkedin.coral</groupId>
+                <artifactId>coral-hive</artifactId>
+                <version>${dep.coral.version}</version>
+                <scope>runtime</scope>
+            </dependency>-->
+
+           <dependency>
+                <groupId>com.linkedin.coral</groupId>
+                <artifactId>coral-hive</artifactId>
+                <version>${dep.coral.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.hive</groupId>
+                        <artifactId>hive-metastore</artifactId>
+                    </exclusion>
+            <exclusion>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-common</artifactId>
+            </exclusion>
+            <!--<exclusion>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-yarn-common</artifactId>
+            </exclusion>
+            <exclusion>
+                <groupId>org.apache.zookeeper</groupId>
+                <artifactId>zookeeper</artifactId>
+            </exclusion>
+            <exclusion>
+                <groupId>log4j</groupId>
+                <artifactId>apache-log4j-extras</artifactId>
+            </exclusion>-->
+              </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>com.linkedin.coral</groupId>
+                <artifactId>coral-presto</artifactId>
+                <version>${dep.coral.version}</version>
+            </dependency>
+
+            <!--<dependency>
+                <groupId>com.linkedin.coral</groupId>
+                <artifactId>coral-common</artifactId>
+                <version>${dep.coral.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.hive</groupId>
+                        <artifactId>hive-metastore</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.hadoop</groupId>
+                        <artifactId>hadoop-common</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>com.linkedin.coral</groupId>
+                <artifactId>coral-hive</artifactId>
+                <version>${dep.coral.version}</version>
+            </dependency>
+
+
+            <dependency>
+                <groupId>com.linkedin.coral</groupId>
+                <artifactId>coral-trino</artifactId>
+                <version>${dep.coral.version}</version>
+            </dependency>-->
+
         </dependencies>
     </dependencyManagement>
 

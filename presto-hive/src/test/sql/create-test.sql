@@ -239,6 +239,9 @@ ALTER TABLE presto_test_partition_schema_change REPLACE COLUMNS (t_data DOUBLE);
 INSERT OVERWRITE TABLE presto_test_partition_schema_change_non_canonical PARTITION (t_boolean='0')
 SELECT 'test' FROM presto_test_sequence LIMIT 100;
 
+DROP VIEW presto_test_hive_view;
+CREATE VIEW presto_test_hive_view AS SELECT * from presto_test_bucketed_by_string_int;
+
 ANALYZE TABLE presto_test_unpartitioned COMPUTE STATISTICS;
 ANALYZE TABLE presto_test_unpartitioned COMPUTE STATISTICS FOR COLUMNS;
 ANALYZE TABLE presto_test_bucketed_by_string_int PARTITION(ds) COMPUTE STATISTICS;

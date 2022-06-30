@@ -94,18 +94,18 @@ public abstract class AbstractTestHiveClientLocal
         throw new SkipException("tests using existing tables are not supported");
     }
 
-    @Override
+    //@Override
     public void testGetAllTableNames() {}
 
-    @Override
+    //@Override
     public void testGetAllTableColumns() {}
 
-    @Override
+    //@Override
     public void testGetAllTableColumnsInSchema() {}
 
-    @Override
+    //@Override
     public void testGetTableNames() {}
 
-    @Override
+    //@Override
     public void testGetTableSchemaOffline() {}
 }

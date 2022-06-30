@@ -42,7 +42,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import io.airlift.units.Duration;
-import org.apache.hadoop.hive.metastore.TableType;
 import org.apache.hadoop.hive.metastore.api.AlreadyExistsException;
 import org.apache.hadoop.hive.metastore.api.ColumnStatisticsObj;
 import org.apache.hadoop.hive.metastore.api.Database;
@@ -239,14 +238,16 @@ public class ThriftHiveMetastore
     {
         try {
             return retry()
-                    .stopOn(NoSuchObjectException.class, HiveViewNotSupportedException.class)
+                    .stopOn(NoSuchObjectException.class)
                     .stopOnIllegalExceptions()
                     .run("getTable", stats.getGetTable().wrap(() ->
                             getMetastoreClientThenCall(metastoreContext, client -> {
+                                System.out.println("calling getTable metastore call123");
                                 Table table = client.getTable(databaseName, tableName);
-                                if (table.getTableType().equals(TableType.VIRTUAL_VIEW.name()) && !isPrestoView(table)) {
+                                System.out.println("Table getTableType123" + table.getTableType());
+                                /*if (table.getTableType().equals(TableType.VIRTUAL_VIEW.name()) && !isPrestoView(table)) {
                                     throw new HiveViewNotSupportedException(new SchemaTableName(databaseName, tableName));
-                                }
+                                }*/
                                 return Optional.of(table);
                             })));
         }

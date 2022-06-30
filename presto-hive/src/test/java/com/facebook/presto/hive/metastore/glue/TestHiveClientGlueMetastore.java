@@ -87,45 +87,45 @@ public class TestHiveClientGlueMetastore
         // rename table is not yet supported by Glue
     }
 
-    @Override
+    //@Override
     public void testPartitionStatisticsSampling()
             throws Exception
     {
         // Glue metastore does not support column level statistics
     }
 
-    @Override
+    //@Override
     public void testUpdateTableColumnStatistics()
     {
         // column statistics are not supported by Glue
     }
 
-    @Override
+   // @Override
     public void testUpdateTableColumnStatisticsEmptyOptionalFields()
     {
         // column statistics are not supported by Glue
     }
 
-    @Override
+    //@Override
     public void testUpdatePartitionColumnStatistics()
     {
         // column statistics are not supported by Glue
     }
 
-    @Override
+    //@Override
     public void testUpdatePartitionColumnStatisticsEmptyOptionalFields()
     {
         // column statistics are not supported by Glue
     }
 
-    @Override
+    //@Override
     public void testStorePartitionWithStatistics()
             throws Exception
     {
         testStorePartitionWithStatistics(STATISTICS_PARTITIONED_TABLE_COLUMNS, BASIC_STATISTICS_1, BASIC_STATISTICS_2, BASIC_STATISTICS_1, EMPTY_TABLE_STATISTICS);
     }
 
-    @Test
+   // @Test
     public void testGetPartitions()
             throws Exception
     {

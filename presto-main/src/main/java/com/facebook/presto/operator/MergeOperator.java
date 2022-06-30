@@ -92,6 +92,7 @@ public class MergeOperator
         public SourceOperator createOperator(DriverContext driverContext)
         {
             checkState(!closed, "Factory is already closed");
+            System.out.println("merge operator");
             OperatorContext operatorContext = driverContext.addOperatorContext(operatorId, sourceId, MergeOperator.class.getSimpleName());
 
             return new MergeOperator(
